@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Feliz Cumpleaños — Dedicatoria Especial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --accent:#e6b422;
+      --muted:#98a3b3;
+    }
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial}
+    body{background:linear-gradient(180deg,var(--bg) 0%, #08101a 100%);color:white;display:flex;align-items:center;justify-content:center}
+    .stage{width:min(1000px,94vw);min-height:640px;border-radius:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 10px 40px rgba(2,6,23,0.8);overflow:hidden;position:relative}
+    .curtain{position:absolute;inset:0;background:linear-gradient(135deg, rgba(14,24,35,0.95), rgba(6,10,16,0.95));display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:40;padding:32px;text-align:center}
+    .curtain h1{font-family:'Playfair Display',serif;font-size:36px;margin:0 0 8px;color:var(--accent)}
+    .curtain p{color:var(--muted);max-width:700px;margin:0 0 20px}
+    .open-btn{background:linear-gradient(90deg,var(--accent),#ffdd69);border:none;color:#07101a;font-weight:700;padding:14px 28px;border-radius:999px;font-size:16px;cursor:pointer;box-shadow:0 6px 18px rgba(230,180,34,0.18)}
+    .content{display:grid;grid-template-columns:1fr 360px;gap:28px;padding:40px;align-items:center;height:100%}
+    .title{font-family:'Playfair Display',serif;font-size:32px;margin:0 0 8px;color:var(--accent)}
+    .subtitle{color:var(--muted);margin:0 0 18px}
+    .lyric-box{background:rgba(255,255,255,0.02);padding:20px;border-radius:12px;min-height:220px;display:flex;align-items:center;justify-content:center}
+    .lyric{font-size:18px;line-height:1.5;text-align:center;max-width:520px;font-weight:500}
+    footer{position:absolute;bottom:18px;left:24px;right:24px;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="curtain" id="curtain">
+      <h1>Un regalo para Ale</h1>
+      <p>Abre este pequeño presente cuando estés lista. Dentro hallarás una canción y palabras hechas solo para ti. Pulsa "Abrir regalo" para comenzar la sorpresa.</p>
+      <button class="open-btn" id="openBtn">Abrir regalo</button>
+    </div>
+    <div class="content" id="mainContent" style="opacity:0;transform:translateY(10px);transition:all .6s ease;">
+      <div>
+        <div class="title">Feliz cumpleaños, Ale 🎉</div>
+        <div class="subtitle">Que este día brille tanto como tú. Con cariño, Alan.</div>
+        <div class="lyric-box">
+          <div class="lyric" id="lyricDisplay"></div>
+        </div>
+      </div>
+    </div>
+    <footer><div>Hecho con mucho cariño 💛</div><div>Por Alan</div></footer>
+    <audio id="song" preload="auto" src="happy-birthday-357371.mp3"></audio>
+  </div>
+  <script>
+    const lyrics = [
+      "Que Dios te bendiga hoy, mañana y siempre.",
+      "Te quiero mucho, y me encantaría haber pasado contigo este día, pero por ciertas circunstancias no pude.",
+      "Eres una persona especial, nunca lo olvides. Eres muy bonita y muy inteligente.",
+      "Tienes muchas virtudes a tu favor, que no tendría tiempo de describirlas.",
+      "Es muy lindo haberme topado contigo en esta vida.",
+      "Gracias por existir, Ale. ❤️"
+    ];
+    const curtain = document.getElementById('curtain');
+    const mainContent = document.getElementById('mainContent');
+    const song = document.getElementById('song');
+    const lyricDisplay = document.getElementById('lyricDisplay');
+    document.getElementById('openBtn').addEventListener('click', async ()=>{
+      curtain.style.opacity = 0; curtain.style.transition='all .8s'; setTimeout(()=>curtain.style.display='none',800);
+      mainContent.style.opacity = 1; mainContent.style.transform = 'translateY(0)';
+      try{ await song.play(); }catch(e){ console.log('Autoplay bloqueado'); }
+      let i=0; lyricDisplay.textContent='';
+      const typeLine = ()=>{
+        if(i<lyrics.length){
+          let text=lyrics[i]; let j=0; lyricDisplay.textContent='';
+          const interval=setInterval(()=>{
+            lyricDisplay.textContent+=text[j]; j++;
+            if(j>=text.length){clearInterval(interval); i++; setTimeout(typeLine,2500);}
+          },40);
+        }
+      }; typeLine();
+    });
+  </script>
+</body>
+</html>
