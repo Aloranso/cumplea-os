@@ -19,12 +19,26 @@
     .curtain h1{font-family:'Playfair Display',serif;font-size:36px;margin:0 0 8px;color:var(--accent)}
     .curtain p{color:var(--muted);max-width:700px;margin:0 0 20px}
     .open-btn{background:linear-gradient(90deg,var(--accent),#ffdd69);border:none;color:#07101a;font-weight:700;padding:14px 28px;border-radius:999px;font-size:16px;cursor:pointer;box-shadow:0 6px 18px rgba(230,180,34,0.18)}
-    .content{display:grid;grid-template-columns:1fr 360px;gap:28px;padding:40px;align-items:center;height:100%}
+    .content{display:flex;flex-direction:column;padding:40px;height:100%;gap:24px}
+    .header-section{margin-bottom:20px}
     .title{font-family:'Playfair Display',serif;font-size:32px;margin:0 0 8px;color:var(--accent)}
     .subtitle{color:var(--muted);margin:0 0 18px}
-    .lyric-box{background:rgba(255,255,255,0.02);padding:20px;border-radius:12px;min-height:220px;display:flex;align-items:center;justify-content:center}
+    .details-section{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+    .details-box, .verses-box{background:rgba(255,255,255,0.02);padding:20px;border-radius:12px}
+    .details-title, .verses-title{font-family:'Playfair Display',serif;font-size:20px;margin:0 0 16px;color:var(--accent)}
+    .details-content p, .verses-content p{margin:10px 0;color:var(--muted)}
+    .divider{height:1px;background:rgba(255,255,255,0.1);margin:20px 0}
+    .lyric-section{background:rgba(255,255,255,0.02);padding:20px;border-radius:12px;min-height:120px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
     .lyric{font-size:18px;line-height:1.5;text-align:center;max-width:520px;font-weight:500}
+    .controls-section{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .player-controls{display:flex;gap:12px}
+    .control-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:white;padding:10px 16px;border-radius:8px;cursor:pointer;font-size:14px;transition:all 0.2s}
+    .control-btn:hover{background:rgba(255,255,255,0.1)}
+    .signature{color:var(--muted);font-size:14px}
+    .advanced-controls{display:flex;gap:16px;justify-content:center}
+    .advanced-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;text-decoration:underline}
     footer{position:absolute;bottom:18px;left:24px;right:24px;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px}
+    .hidden{display:none}
   </style>
 </head>
 <body>
@@ -35,12 +49,49 @@
       <button class="open-btn" id="openBtn">Abrir regalo</button>
     </div>
     <div class="content" id="mainContent" style="opacity:0;transform:translateY(10px);transition:all .6s ease;">
-      <div>
-        <div class="title">Feliz cumpleaños, Ale 🎉</div>
-        <div class="subtitle">Que este día brille tanto como tú. Con cariño, Alan.</div>
-        <div class="lyric-box">
-          <div class="lyric" id="lyricDisplay"></div>
+      <div class="header-section">
+        <h1 class="title">Feliz cumpleaños, Ale</h1>
+        <p class="subtitle">Que este día brille tanto como tú. Aquí tienes con cariño.</p>
+      </div>
+      
+      <div class="details-section">
+        <div class="details-box">
+          <h2 class="details-title">Detalles elegantes</h2>
+          <div class="details-content">
+            <p><strong>Fecha:</strong> 2/11/2025</p>
+            <p><strong>Lugar:</strong> En mi corazón</p>
+          </div>
         </div>
+        
+        <div class="verses-box">
+          <h2 class="verses-title">Versos destacados</h2>
+          <div class="verses-content">
+            <p>Eres una persona especial, nunca lo olvides.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="divider"></div>
+      
+      <div class="lyric-section">
+        <div class="lyric" id="lyricDisplay">Pulsa "Reproducir" para escuchar la canción y ver la dedicatoria línea por línea...</div>
+      </div>
+      
+      <div class="controls-section">
+        <div class="player-controls">
+          <button class="control-btn" id="playBtn">Reproducir</button>
+          <button class="control-btn" id="pauseBtn">Pausar</button>
+          <button class="control-btn" id="restartBtn">Reiniciar</button>
+          <button class="control-btn" id="photoBtn">Foto</button>
+        </div>
+        <div class="signature"><strong>De: Alan</strong> Con todo mi cariño</div>
+      </div>
+      
+      <div class="divider"></div>
+      
+      <div class="advanced-controls">
+        <button class="advanced-btn" id="toggleLyricsBtn">Mostrar/Ocultar letra</button>
+        <button class="advanced-btn" id="copyBtn">Copiar dedicatoria</button>
       </div>
     </div>
     <footer><div>Hecho con mucho cariño 💛</div><div>Por Alan</div></footer>
@@ -55,25 +106,113 @@
       "Es muy lindo haberme topado contigo en esta vida.",
       "Gracias por existir, Ale. ❤️"
     ];
+    
     const curtain = document.getElementById('curtain');
     const mainContent = document.getElementById('mainContent');
     const song = document.getElementById('song');
     const lyricDisplay = document.getElementById('lyricDisplay');
+    const playBtn = document.getElementById('playBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const photoBtn = document.getElementById('photoBtn');
+    const toggleLyricsBtn = document.getElementById('toggleLyricsBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    
+    let currentLyricIndex = 0;
+    let isPlaying = false;
+    let typeInterval;
+    
+    // Abrir el regalo
     document.getElementById('openBtn').addEventListener('click', async ()=>{
-      curtain.style.opacity = 0; curtain.style.transition='all .8s'; setTimeout(()=>curtain.style.display='none',800);
-      mainContent.style.opacity = 1; mainContent.style.transform = 'translateY(0)';
-      try{ await song.play(); }catch(e){ console.log('Autoplay bloqueado'); }
-      let i=0; lyricDisplay.textContent='';
-      const typeLine = ()=>{
-        if(i<lyrics.length){
-          let text=lyrics[i]; let j=0; lyricDisplay.textContent='';
-          const interval=setInterval(()=>{
-            lyricDisplay.textContent+=text[j]; j++;
-            if(j>=text.length){clearInterval(interval); i++; setTimeout(typeLine,2500);}
-          },40);
-        }
-      }; typeLine();
+      curtain.style.opacity = 0; 
+      curtain.style.transition='all .8s'; 
+      setTimeout(()=>curtain.style.display='none',800);
+      mainContent.style.opacity = 1; 
+      mainContent.style.transform = 'translateY(0)';
     });
+    
+    // Controles de reproducción
+    playBtn.addEventListener('click', async ()=>{
+      if (!isPlaying) {
+        try { 
+          await song.play(); 
+          isPlaying = true;
+          if (currentLyricIndex === 0) {
+            startLyrics();
+          }
+        } catch(e) { 
+          console.log('Error al reproducir:', e); 
+        }
+      }
+    });
+    
+    pauseBtn.addEventListener('click', ()=>{
+      song.pause();
+      isPlaying = false;
+      clearInterval(typeInterval);
+    });
+    
+    restartBtn.addEventListener('click', ()=>{
+      song.currentTime = 0;
+      currentLyricIndex = 0;
+      lyricDisplay.textContent = "Pulsa 'Reproducir' para escuchar la canción y ver la dedicatoria línea por línea...";
+      isPlaying = false;
+      clearInterval(typeInterval);
+    });
+    
+    photoBtn.addEventListener('click', ()=>{
+      // Simular tomar una foto (en un caso real, esto podría activar la cámara)
+      alert("¡Foto tomada! 📸");
+    });
+    
+    // Controles avanzados
+    toggleLyricsBtn.addEventListener('click', ()=>{
+      const lyricSection = document.querySelector('.lyric-section');
+      if (lyricSection.style.display === 'none') {
+        lyricSection.style.display = 'flex';
+        toggleLyricsBtn.textContent = 'Mostrar/Ocultar letra';
+      } else {
+        lyricSection.style.display = 'none';
+        toggleLyricsBtn.textContent = 'Mostrar letra';
+      }
+    });
+    
+    copyBtn.addEventListener('click', ()=>{
+      const fullText = lyrics.join('\n\n');
+      navigator.clipboard.writeText(fullText)
+        .then(() => alert("Dedicatoria copiada al portapapeles"))
+        .catch(err => console.error('Error al copiar:', err));
+    });
+    
+    // Función para mostrar las letras
+    function startLyrics() {
+      currentLyricIndex = 0;
+      lyricDisplay.textContent = '';
+      typeNextLyric();
+    }
+    
+    function typeNextLyric() {
+      if (currentLyricIndex < lyrics.length) {
+        let text = lyrics[currentLyricIndex];
+        let j = 0;
+        lyricDisplay.textContent = '';
+        
+        typeInterval = setInterval(() => {
+          lyricDisplay.textContent += text[j];
+          j++;
+          
+          if (j >= text.length) {
+            clearInterval(typeInterval);
+            currentLyricIndex++;
+            
+            // Esperar antes de mostrar la siguiente línea
+            if (currentLyricIndex < lyrics.length) {
+              setTimeout(typeNextLyric, 3000);
+            }
+          }
+        }, 40);
+      }
+    }
   </script>
 </body>
 </html>
